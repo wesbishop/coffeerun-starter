@@ -11,7 +11,6 @@ $(function() {
     }
   }
 
-  // add static ordernumber to this class
   class Orders {
     constructor(waitress) {
       this.waitress = waitress;
@@ -23,29 +22,22 @@ $(function() {
       this.coffeeOrders[id] = currentOrder;
     }
 
+    deleteOrder(currentOrder) {
+      delete this.coffeeOrders[currentOrder.orderNumber];
+    }
+
   }
 
-  $("#clear-items").click(function(e) {
-    allOrders.coffeeOrders = {};
-    setLocalstorage(allOrders);
-    renderOrders(allOrders);
-  })
-
-    $("#orderList").on("click","button", function() {
-
-    })
-
-  
-  
+  // event listners
   $("form").submit(function(e) {
 
     e.preventDefault();
 
-    let coffeeType = $("#coffeeType").val();
-    let email = $("#emailInput").val();
-    let size = $("input:checked").val();
-    let flavorShot = $("#flavorShot").val();
-    let strength = $("#strengthLevel").val();
+    let coffeeType = $("#coffeeType").val(),
+        email = $("#emailInput").val(),
+        size = $("input:checked").val();
+        flavorShot = $("#flavorShot").val(),
+        strength = $("#strengthLevel").val();
 
     id = ++allOrders.orderNumber;
     currentOrder = new CoffeeOrder(coffeeType);
@@ -56,11 +48,30 @@ $(function() {
     allOrders.addOrder(currentOrder);
 
     setLocalstorage(allOrders);
-
     renderOrders(allOrders);
 
+    document.getElementById("form-coffee").reset(); 
+    document.getElementById("coffeeType").focus();
+    
   });
 
+  $("#clear-items").click(function(e) {
+    allOrders.coffeeOrders = {};
+    setLocalstorage(allOrders);
+    renderOrders(allOrders);
+  })
+  
+  $("#orderList").on("click",".delete-order", function(e) {
+    e.preventDefault();
+    let orderNumber = $(this).parent().data("id");
+    allOrders.deleteOrder(allOrders.coffeeOrders[orderNumber]);
+    setLocalstorage(allOrders);
+    renderOrders(allOrders);
+
+  })
+
+ 
+  
   function setLocalstorage(allOrders) {
     localStorage.setItem("coffeeOrders",JSON.stringify(allOrders.coffeeOrders));    
   }
@@ -86,14 +97,15 @@ $(function() {
   }
 
   function renderCoffeeOrderHTML(currentOrder) {
-    var finalHTML = "<div class='order' >";
-    finalHTML += "<span>" + currentOrder.coffeeType + "<span>";
-    finalHTML += "<span>" + currentOrder.email + "<span>";
-    finalHTML += "<span>" + currentOrder.size + "<span>";
-    finalHTML += "<span>" + currentOrder.flavor + "<span>";
-    finalHTML += "<span>" + currentOrder.strength + "<span>";
-    finalHTML += "<span> <span>";
-    finalHTML += "<button type='button' id='delete-order' class='btn btn-default align-right'>X</button>";
+    var finalHTML = "<div class='order' data-id='" + currentOrder.orderNumber +"'>";
+    finalHTML += "<span>" + currentOrder.coffeeType + "</span>";
+    finalHTML += "<span>" + currentOrder.email + "</span>";
+    finalHTML += "<span>" + currentOrder.size + "</span>";
+    finalHTML += "<span>" + currentOrder.flavor + "</span>";
+    finalHTML += "<span>" + currentOrder.strength + "</span>";
+    finalHTML += "<span> </span>";
+    finalHTML += "<button type='button' " ;
+    finalHTML += "        class='btn btn-default align-right delete-order'>X</button>";
     finalHTML += "</div>";
     return finalHTML;
   }
@@ -110,4 +122,4 @@ $(function() {
   //reset should reload page
 
 
-})
+});
